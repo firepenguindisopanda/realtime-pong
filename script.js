@@ -3,19 +3,24 @@ const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 const frameRate = 1000 / 60;
 let timer = 0;
-let speed = 2;
+let speed = 4;
 let obstacleSpeed = 2;
 let score = 0;
 let collisionCount = 0;
 
-// Resize canvas to fit within the container with padding
 function resizeCanvas() {
     const container = document.querySelector('.game-container');
     const containerStyles = getComputedStyle(container);
     const padding = parseFloat(containerStyles.padding) || 0;
-
-    canvas.width = container.clientWidth - padding * 2;
-    canvas.height = container.clientHeight - padding * 2;
+    
+    const containerWidth = container.clientWidth - padding * 2;
+    const containerHeight = container.clientHeight - padding * 2;
+    
+    const targetHeight = Math.min(900, containerHeight);
+    const targetWidth = targetHeight * (2/3);
+    
+    canvas.width = Math.min(600, targetWidth);
+    canvas.height = targetHeight;
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
@@ -24,7 +29,7 @@ window.addEventListener('resize', resizeCanvas);
 class Paddle {
     constructor() {
         this.height = 10;
-        this.width = 100;
+        this.width = Math.min(100, canvas.width * 0.25);
         this.x = canvas.width / 2 - this.width / 2;
         this.y = canvas.height - this.height - 10;
         this.moveLeft = false;
