@@ -27,11 +27,16 @@ window.addEventListener('resize', resizeCanvas);
 
 // Paddle class
 class Paddle {
-    constructor() {
+    constructor(isTopPaddle=false) {
         this.height = 10;
         this.width = Math.min(100, canvas.width * 0.25);
         this.x = canvas.width / 2 - this.width / 2;
-        this.y = canvas.height - this.height - 10;
+        this.isTopPaddle = isTopPaddle;
+        if (isTopPaddle) {
+            this.y = 10;
+        } else {
+            this.y = canvas.height - this.height - 10;
+        }
         this.moveLeft = false;
         this.moveRight = false;
     }
@@ -46,18 +51,23 @@ class Paddle {
     }
 
     draw() {
-        context.fillStyle = 'white';
+        context.fillStyle = this.isTopPaddle ? 'blue' : 'red';
         context.fillRect(this.x, this.y, this.width, this.height);
     }
 
     updatePositionOnResize() {
         // Recalculate position to maintain relative placement on resize
         this.x = Math.min(this.x, canvas.width - this.width);
-        this.y = canvas.height - this.height - 10;
+        if (this.isTopPaddle) {
+            this.y = 10;
+        } else {
+            this.y = canvas.height - this.height - 10;
+        }
     }
 }
 
-const paddle = new Paddle();
+const bottomPaddle = new Paddle(false);
+const topPaddle = new Paddle(true);
 
 // Rendering canvas
 function renderCanvas() {
@@ -69,36 +79,67 @@ function renderCanvas() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw the paddle
-    paddle.draw();
+    bottomPaddle.draw();
+    topPaddle.draw();
 }
 
 // Set up event listeners for paddle movement
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowLeft' || event.key === 'Left') {
-        paddle.moveLeft = true;
-    } else if (event.key === 'ArrowRight' || event.key === 'Right') {
-        paddle.moveRight = true;
+    switch(event.key.toLowerCase()) {
+        // Bottom paddle controls (Arrow keys)
+        case 'arrowleft':
+        case 'left':
+            bottomPaddle.moveLeft = true;
+            break;
+        case 'arrowright':
+        case 'right':
+            bottomPaddle.moveRight = true;
+            break;
+            
+        // Top paddle controls (WASD)
+        case 'a':
+            topPaddle.moveLeft = true;
+            break;
+        case 'd':
+            topPaddle.moveRight = true;
+            break;
     }
 });
 
 document.addEventListener('keyup', (event) => {
-    if (event.key === 'ArrowLeft' || event.key === 'Left') {
-        paddle.moveLeft = false;
-    } else if (event.key === 'ArrowRight' || event.key === 'Right') {
-        paddle.moveRight = false;
+    switch(event.key.toLowerCase()) {
+        // Bottom paddle controls (Arrow keys)
+        case 'arrowleft':
+        case 'left':
+            bottomPaddle.moveLeft = false;
+            break;
+        case 'arrowright':
+        case 'right':
+            bottomPaddle.moveRight = false;
+            break;
+            
+        // Top paddle controls (WASD)
+        case 'a':
+            topPaddle.moveLeft = false;
+            break;
+        case 'd':
+            topPaddle.moveRight = false;
+            break;
     }
 });
 
-// Update paddle position on canvas resize
+// Update paddle positions on canvas resize
 window.addEventListener('resize', () => {
     resizeCanvas();
-    paddle.updatePositionOnResize();
+    bottomPaddle.updatePositionOnResize();
+    topPaddle.updatePositionOnResize();
 });
 
 // Animation loop
 function animate() {
     renderCanvas();
-    paddle.changePosition();
+    bottomPaddle.changePosition();
+    topPaddle.changePosition();
     requestAnimationFrame(animate);
 }
 
